@@ -11,7 +11,7 @@
  */
 
 /**
-Copyright 2020 Scott Cariss (email:scott@cariss.dev)
+Copyright 2015-2026 Scott Cariss (email:scott@cariss.dev)
 
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -34,5 +34,39 @@ if ( ! defined( 'WP_UNINSTALL_PLUGIN' ) ) {
 	exit();
 }
 
-delete_option( 'sc_wpun_settings' );
-delete_option( 'sc_wpun_settings_ver' );
+/**
+ * Remove everything the plugin stored for the current site.
+ */
+$sc_wpun_uninstall_site = static function () {
+	delete_option( 'sc_wpun_settings' );
+	delete_option( 'sc_wpun_settings_ver' );
+	delete_option( 'sc_wpun_state' );
+	delete_option( 'sc_wpun_channels' );
+	delete_transient( 'sc_wpun_send_test_email' );
+	delete_transient( 'sc_wpun_send_test_slack' );
+
+	// Normally gone already on deactivation, but not if the files were removed or
+	// replaced without one.
+	wp_clear_scheduled_hook( 'sc_wpun_update_check' );
+};
+
+// User meta is shared by the whole network, so it is removed once.
+delete_metadata( 'user', 0, 'sc_wpun_dismissed_slack_notice', '', true );
+delete_metadata( 'user', 0, 'sc_wpun_notice', '', true );
+delete_metadata( 'user', 0, 'sc_wpun_channel_form', '', true );
+
+if ( is_multisite() ) {
+	// Settings, state and the event are kept per site, so clean every site.
+	foreach ( get_sites(
+		array(
+			'fields' => 'ids',
+			'number' => 0,
+		)
+	) as $sc_wpun_site_id ) {
+		switch_to_blog( $sc_wpun_site_id );
+		$sc_wpun_uninstall_site();
+		restore_current_blog();
+	}
+} else {
+	$sc_wpun_uninstall_site();
+}

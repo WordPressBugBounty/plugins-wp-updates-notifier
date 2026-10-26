@@ -1,0 +1,65 @@
+/*
+ * Channels list. Its row actions are always shown: core's `.visible` class is not enough,
+ * because common.js removes it from every row when focus leaves one.
+ */
+.sc-wpun-channels .row-actions {
+	position: static;
+}
+
+/* Row actions that post (send test, duplicate, enable) sit in small forms. */
+.sc-wpun-channels .row-actions form {
+	display: inline;
+	margin: 0;
+}
+
+@media screen and (min-width: 783px) {
+	/* Room for the actions on one line. */
+	.sc-wpun-channels .column-primary {
+		width: 30%;
+	}
+
+	/* The buttons look like the Edit and Delete links. Below 783px core styles both alike. */
+	.sc-wpun-channels .row-actions .button-link {
+		font-size: inherit;
+		line-height: inherit;
+		vertical-align: baseline;
+		text-decoration: none;
+	}
+
+	.sc-wpun-channels .row-actions .button-link:hover {
+		text-decoration: underline;
+	}
+}
+
+@media screen and (max-width: 782px) {
+	/* Core widens and positions cells from the third on, as its tables start with a checkbox; this one does not, so from the second. */
+	.sc-wpun-channels tr td:nth-child(n+2) {
+		flex: 0 1 100%;
+		position: relative;
+	}
+
+	/* The primary cell is the row's heading: core's column name in front of the other cells would overprint the label. */
+	.wp-list-table.sc-wpun-channels tr:not(.inline-edit-row):not(.no-items) td.column-primary::before {
+		display: none;
+	}
+}
+
+/*
+ * The message under a field that failed validation. Core's darker error red, which keeps 4.5:1 contrast on the grey
+ * admin background too, and a bold "Error:" in the text, so it is not told apart by colour alone and shows in forced
+ * colours mode.
+ */
+.sc-wpun-field-error {
+	margin: 4px 0 0;
+	color: #b32d2e;
+}
+
+.sc-wpun-field-error strong {
+	font-weight: 600;
+}
+
+@media (forced-colors: active) {
+	.sc-wpun-field-error {
+		color: CanvasText;
+	}
+}
